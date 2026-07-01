@@ -1,69 +1,218 @@
-<h1><%= @level.title %></h1>
-<p><%= @level.description %></p>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+  <h1 style="color: #f8fafc; margin: 0;"><%= @level.title %></h1>
+  <div style="display: flex; align-items: center; gap: 1rem;">
+    <span style="color: #cbd5e1; font-size: 0.9rem;">Livello <%= @level.id %> di <%= Level.count %></span>
+    <% if @completed %>
+      <span style="background: rgba(76, 175, 80, 0.2); color: #4caf50; padding: 0.35rem 0.75rem; border-radius: 999px; font-size: 0.8rem; font-weight: bold;">✓ Completato</span>
+      <% if @next_level %>
+        <%= link_to "→ #{@next_level.title}", level_path(@next_level), 
+            class: "next-level-link" %>
+      <% end %>
+    <% end %>
+  </div>
+</div>
+<p style="color: #cbd5e1;"><%= @level.description %></p>
 
-<h2>Blocchi di codice</h2>
+<style>
+  .next-level-link {
+    background: #2196f3;
+    color: #e2e8f0;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+  }
+  .next-level-link:hover {
+    background: #42a5f5;
+    transform: scale(1.05);
+  }
+</style>
+
+<h2 style="color: #cbd5e1;">Blocchi di codice</h2>
 <div id="code-blocks" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;">
   <% @blocks.each do |block| %>
-    <div class="code-block" draggable="true" style="padding: 8px 12px; background-color: #e0f7fa; border: 1px solid #b2ebf2; border-radius: 4px; cursor: grab;">
+    <div class="code-block" draggable="true" style="padding: 8px 12px; background-color: #334155; border: 1px solid #475569; border-radius: 4px; cursor: grab; color: #e2e8f0;">
       <%= block.content %>
     </div>
   <% end %>
 </div>
 
-<h2>Inserisci la soluzione</h2>
-<label for="answer-input" style="display: block; margin-bottom: 6px; font-weight: bold;">Scrivi la risposta completa</label>
-<textarea id="answer-input" rows="5" placeholder="Es: puts \"Ciao, mondo!\"" style="width: 100%; max-width: 600px; padding: 10px; border: 1px solid #b2ebf2; border-radius: 4px; margin-bottom: 10px;"></textarea>
+<h2 style="color: #cbd5e1;">Inserisci la soluzione</h2>
+<label for="answer-input" style="display: block; margin-bottom: 6px; font-weight: bold; color: #cbd5e1;">Scrivi la risposta completa</label>
+<textarea id="answer-input" rows="5" placeholder="Es: puts \"Ciao, mondo!\"" style="width: 100%; max-width: 600px; padding: 10px; border: 1px solid #475569; border-radius: 4px; margin-bottom: 10px; background-color: #1e293b; color: #e2e8f0;"></textarea>
 
-<h2>Canva</h2>
-<div id="canvas" style="min-height: 100px; border: 2px dashed #b2ebf2; border-radius: 4px; padding: 10px; background-color: #f9f9f9; margin-bottom: 20px;"></div>
+<h2 style="color: #cbd5e1;">Canva</h2>
+<div id="canvas" style="min-height: 100px; border: 2px dashed #5c7cfa; border-radius: 4px; padding: 10px; background-color: #1e293b; margin-bottom: 20px;"></div>
 
-<button id="execute" style="padding: 8px 16px; background-color: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer;">Controlla risposta</button>
-<button id="reset" style="padding: 8px 16px; background-color: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">Resetta</button>
+<button id="execute" style="padding: 8px 16px; background-color: #4caf50; color: #e2e8f0; border: none; border-radius: 4px; cursor: pointer; transition: all 0.2s ease;">Controlla risposta</button>
+<button id="reset" style="padding: 8px 16px; background-color: #f44336; color: #e2e8f0; border: none; border-radius: 4px; cursor: pointer; transition: all 0.2s ease;">Resetta</button>
+<% if @hints.any? %>
+  <button id="hint" style="padding: 8px 16px; background-color: #ff9800; color: #e2e8f0; border: none; border-radius: 4px; cursor: pointer; transition: all 0.2s ease;">💡 Suggerimento</button>
+<% end %>
 
-<div id="output" style="margin-top: 20px; padding: 10px; background-color: #e8f5e9; border-radius: 4px; font-family: monospace;"></div>
+<div id="output" style="margin-top: 20px; padding: 10px; background-color: #1e293b; border-radius: 4px; font-family: monospace; color: #e2e8f0;"></div>
+
+<% if @hints.any? %>
+  <div id="hints" style="margin-top: 20px;">
+    <h3 style="margin-bottom: 10px; color: #cbd5e1;">Suggerimenti</h3>
+    <div id="hints-container" style="display: flex; flex-direction: column; gap: 10px;"></div>
+  </div>
+<% end %>
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const codeBlocks = document.querySelectorAll('.code-block');
+    const codeBlocks = document.querySelectorAll('#code-blocks .code-block');
     const canvas = document.getElementById('canvas');
     const answerInput = document.getElementById('answer-input');
     const executeButton = document.getElementById('execute');
     const resetButton = document.getElementById('reset');
+    const hintButton = document.getElementById('hint');
     const outputDiv = document.getElementById('output');
+    const hintsContainer = document.getElementById('hints-container');
 
-    let draggedItem = null;
+    let currentHintIndex = 0;
+    const levelId = <%= @level.id %>;
+    const hasHints = <%= @hints.any? %>;
+
+    let draggedElement = null;
+
+    console.log('Code blocks found:', codeBlocks.length);
+    console.log('Canvas found:', canvas);
+    console.log('Answer input found:', answerInput);
 
     const addBlockToCanvas = (text) => {
+      console.log('Adding block to canvas:', text);
       const newBlock = document.createElement('div');
       newBlock.textContent = text;
       newBlock.draggable = true;
-      newBlock.style.cssText = "display: inline-block; padding: 8px 12px; background-color: #e0f7fa; border: 1px solid #b2ebf2; border-radius: 4px; margin: 5px; cursor: grab; user-select: none;";
+      newBlock.className = 'code-block';
+      newBlock.style.cssText = "display: inline-block; padding: 8px 12px; background-color: #334155; border: 1px solid #475569; border-radius: 4px; margin: 5px; cursor: grab; user-select: none; color: #e2e8f0; transition: all 0.2s ease;";
+      
+      // Make canvas blocks reorderable
       newBlock.addEventListener('dragstart', (e) => {
+        draggedElement = newBlock;
         e.dataTransfer.setData('text/plain', newBlock.textContent);
-        e.dataTransfer.effectAllowed = 'copy';
+        e.dataTransfer.effectAllowed = 'move';
+        newBlock.style.opacity = '0.7';
+        newBlock.style.transform = 'scale(0.95)';
       });
-      newBlock.addEventListener('click', () => newBlock.remove());
+      
+      newBlock.addEventListener('dragend', () => {
+        draggedElement = null;
+        newBlock.style.opacity = '1';
+        newBlock.style.transform = 'scale(1)';
+      });
+      
+      newBlock.addEventListener('click', () => {
+        newBlock.style.transform = 'scale(0.95)';
+        setTimeout(() => newBlock.remove(), 150);
+      });
+      
+      newBlock.addEventListener('mouseenter', () => {
+        newBlock.style.borderColor = '#ff9800';
+        newBlock.style.boxShadow = '0 0 8px rgba(255, 152, 0, 0.3)';
+      });
+      
+      newBlock.addEventListener('mouseleave', () => {
+        newBlock.style.borderColor = '#475569';
+        newBlock.style.boxShadow = 'none';
+      });
+      
       canvas.appendChild(newBlock);
+      console.log('Block added successfully');
     };
 
     codeBlocks.forEach(block => {
+      console.log('Setting up event listeners for block:', block.textContent);
+      block.style.transition = 'all 0.2s ease';
       block.addEventListener('dragstart', (e) => {
+        console.log('Drag started for:', block.textContent);
         e.dataTransfer.setData('text/plain', block.textContent);
         e.dataTransfer.effectAllowed = 'copy';
+        block.style.opacity = '0.7';
+        block.style.transform = 'scale(0.95)';
+        // Don't set draggedElement for source blocks
       });
-      block.addEventListener('click', () => addBlockToCanvas(block.textContent));
+      block.addEventListener('dragend', () => {
+        console.log('Drag ended for:', block.textContent);
+        block.style.opacity = '1';
+        block.style.transform = 'scale(1)';
+      });
+      block.addEventListener('click', (e) => {
+        console.log('Click on block:', block.textContent);
+        e.preventDefault();
+        e.stopPropagation();
+        addBlockToCanvas(block.textContent);
+        // Add visual feedback
+        block.style.borderColor = '#4caf50';
+        block.style.background = 'rgba(76, 175, 80, 0.2)';
+        setTimeout(() => {
+          block.style.borderColor = '#475569';
+          block.style.background = '#334155';
+        }, 300);
+      });
+      block.addEventListener('mouseenter', () => {
+        block.style.borderColor = '#ff9800';
+        block.style.cursor = 'pointer';
+        block.style.transform = 'scale(1.05)';
+        block.style.boxShadow = '0 0 8px rgba(255, 152, 0, 0.3)';
+      });
+      block.addEventListener('mouseleave', () => {
+        block.style.borderColor = '#475569';
+        block.style.transform = 'scale(1)';
+        block.style.boxShadow = 'none';
+      });
     });
 
     canvas.addEventListener('dragover', (e) => {
       e.preventDefault();
       e.dataTransfer.dropEffect = 'copy';
+      canvas.style.borderColor = '#4caf50';
+      canvas.style.background = 'rgba(76, 175, 80, 0.1)';
+    });
+
+    canvas.addEventListener('dragleave', () => {
+      canvas.style.borderColor = '#5c7cfa';
+      canvas.style.background = '#1e293b';
     });
 
     canvas.addEventListener('drop', (e) => {
       e.preventDefault();
       const data = e.dataTransfer.getData('text/plain');
+      
       if (data) {
-        addBlockToCanvas(data);
+        // Check if we're reordering canvas blocks
+        if (draggedElement && canvas.contains(draggedElement)) {
+          // Find the element being dropped on
+          const dropTarget = e.target.closest('.code-block');
+          
+          if (dropTarget && dropTarget !== draggedElement) {
+            const canvasChildren = Array.from(canvas.children);
+            const draggedIndex = canvasChildren.indexOf(draggedElement);
+            const targetIndex = canvasChildren.indexOf(dropTarget);
+            
+            if (draggedIndex !== -1 && targetIndex !== -1) {
+              // Move the dragged element to the new position
+              if (draggedIndex < targetIndex) {
+                dropTarget.after(draggedElement);
+              } else {
+                dropTarget.before(draggedElement);
+              }
+            }
+          }
+        } else {
+          // Add new block from source
+          addBlockToCanvas(data);
+        }
+        
+        // Visual feedback for successful drop
+        canvas.style.borderColor = '#4caf50';
+        canvas.style.background = 'rgba(76, 175, 80, 0.15)';
+        setTimeout(() => {
+          canvas.style.borderColor = '#5c7cfa';
+          canvas.style.background = '#1e293b';
+        }, 500);
       }
     });
 
@@ -71,11 +220,64 @@
       return Array.from(canvas.children).map(el => el.textContent).join('\n');
     };
 
+    const updateCanvasFromInput = () => {
+      const typedAnswer = answerInput.value.trim();
+      if (typedAnswer) {
+        // Clear canvas and create blocks from typed text
+        canvas.innerHTML = '';
+        const lines = typedAnswer.split('\n');
+        lines.forEach(line => {
+          if (line.trim()) {
+            addBlockToCanvas(line);
+          }
+        });
+      }
+    };
+
+    // Sync input changes to canvas
+    answerInput.addEventListener('input', () => {
+      if (answerInput.value.trim()) {
+        // Only update canvas if input has content
+        updateCanvasFromInput();
+      } else {
+        // Clear canvas if input is empty
+        canvas.innerHTML = '';
+      }
+    });
+
+    // Add hover effects to buttons
+    executeButton.addEventListener('mouseenter', () => {
+      executeButton.style.backgroundColor = '#66bb6a';
+      executeButton.style.transform = 'scale(1.05)';
+    });
+    executeButton.addEventListener('mouseleave', () => {
+      executeButton.style.backgroundColor = '#4caf50';
+      executeButton.style.transform = 'scale(1)';
+    });
+
+    resetButton.addEventListener('mouseenter', () => {
+      resetButton.style.backgroundColor = '#ef5350';
+      resetButton.style.transform = 'scale(1.05)';
+    });
+    resetButton.addEventListener('mouseleave', () => {
+      resetButton.style.backgroundColor = '#f44336';
+      resetButton.style.transform = 'scale(1)';
+    });
+
+    if (hintButton) {
+      hintButton.addEventListener('mouseenter', () => {
+        hintButton.style.backgroundColor = '#ffb74d';
+        hintButton.style.transform = 'scale(1.05)';
+      });
+      hintButton.addEventListener('mouseleave', () => {
+        hintButton.style.backgroundColor = '#ff9800';
+        hintButton.style.transform = 'scale(1)';
+      });
+    }
+
     executeButton.addEventListener('click', () => {
       const canvasContent = getCanvasContent();
-      const typedAnswer = answerInput.value.trim();
-      const payload = typedAnswer ? typedAnswer : canvasContent;
-      const levelId = <%= @level.id %>;
+      const payload = canvasContent || answerInput.value.trim();
 
       fetch(`/levels/${levelId}/check_solution`, {
         method: 'POST',
@@ -88,7 +290,22 @@
       .then(response => response.json())
       .then(data => {
         outputDiv.textContent = data.message;
-        outputDiv.style.color = data.success ? 'green' : 'red';
+        outputDiv.style.color = data.success ? '#4caf50' : '#f44336';
+
+        // Handle successful completion
+        if (data.success && data.has_next_level) {
+          // Reload the page to show the completed state and next level link
+          setTimeout(() => {
+            window.location.reload();
+          }, 1500);
+        } else if (data.success && !data.has_next_level) {
+          // Show celebration message for completing all levels
+          outputDiv.style.fontSize = '1.2em';
+          outputDiv.style.fontWeight = 'bold';
+          outputDiv.style.padding = '15px';
+          outputDiv.style.background = 'rgba(76, 175, 80, 0.2)';
+          outputDiv.style.border = '2px solid #4caf50';
+        }
       });
     });
 
@@ -96,6 +313,49 @@
       canvas.innerHTML = '';
       answerInput.value = '';
       outputDiv.textContent = '';
+      currentHintIndex = 0;
+      // Reset hints container
+      const hintsContainer = document.getElementById('hints-container');
+      if (hintsContainer) {
+        hintsContainer.innerHTML = '';
+      }
+      // Reset hint button if exists
+      if (hintButton) {
+        hintButton.disabled = false;
+        hintButton.style.opacity = '1';
+        hintButton.textContent = '💡 Suggerimento';
+      }
+      // Reset output styling
+      outputDiv.style.fontSize = '';
+      outputDiv.style.fontWeight = '';
+      outputDiv.style.padding = '';
+      outputDiv.style.background = '';
+      outputDiv.style.border = '';
     });
+
+    if (hintButton && hasHints) {
+      hintButton.addEventListener('click', () => {
+        fetch(`/levels/${levelId}/get_hint?hint_index=${currentHintIndex}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.error) {
+            outputDiv.textContent = data.error;
+            outputDiv.style.color = '#f44336';
+          } else {
+            const hintDiv = document.createElement('div');
+            hintDiv.style.cssText = "padding: 10px; background-color: #334155; border-left: 4px solid #ff9800; border-radius: 4px; font-family: monospace; color: #e2e8f0;";
+            hintDiv.textContent = `💡 Suggerimento ${data.hint_index}: ${data.hint}`;
+            hintsContainer.appendChild(hintDiv);
+            currentHintIndex = data.hint_index;
+
+            if (!data.has_more) {
+              hintButton.disabled = true;
+              hintButton.style.opacity = '0.5';
+              hintButton.textContent = 'Nessun altro suggerimento';
+            }
+          }
+        });
+      });
+    }
   });
 </script>

@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   resources :levels, only: [:index, :show] do
     member do
       post :check_solution
+      get :get_hint
     end
   end
 

@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  level: one
+  content: MyText
+  hint_order: 1
+
+two:
+  level: two
+  content: MyText
+  hint_order: 1

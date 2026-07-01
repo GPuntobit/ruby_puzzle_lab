@@ -5,10 +5,10 @@
     <p>I costrutti Ruby si sbloccano come abilità del golem, non come capitoli di un manuale.</p>
 
     <div class="hero-buttons">
-      <span class="hero-pill active">Concept</span>
-      <span class="hero-pill">Mappa live</span>
-      <span class="hero-pill">Schemata puzzle</span>
-      <span class="hero-pill">Progressione Ruby</span>
+      <%= link_to "Concept", "#", class: "hero-pill active" %>
+      <%= link_to "Mappa live", "#", class: "hero-pill" %>
+      <%= link_to "Schemata puzzle", "#", class: "hero-pill" %>
+      <%= link_to "Progressione Ruby", "#", class: "hero-pill" %>
     </div>
   </div>
 
@@ -32,6 +32,7 @@
       <li class="in-progress">.each, .map</li>
       <li>metodi</li>
     </ul>
+    <%= link_to "Gioca Piano 1", level_path(1), class: "nav-button" %>
   </article>
 
   <article class="roadmap-card roadmap-card--blue">
@@ -44,6 +45,7 @@
       <li>attr_reader</li>
       <li>moduli</li>
     </ul>
+    <%= link_to "Gioca Piano 2", level_path(2), class: "nav-button" %>
   </article>
 
   <article class="roadmap-card roadmap-card--purple">
@@ -55,6 +57,7 @@
       <li>yield</li>
       <li>map, select, reduce</li>
     </ul>
+    <%= link_to "Gioca Piano 3", level_path(3), class: "nav-button" %>
   </article>
 
   <article class="roadmap-card roadmap-card--amber">
@@ -66,7 +69,30 @@
       <li>ensure</li>
       <li>eccezioni custom</li>
     </ul>
+    <%= link_to "Gioca Piano 4", level_path(4), class: "nav-button" %>
   </article>
+</section>
+
+<section class="levels-section">
+  <h2 style="margin-top: 2rem; margin-bottom: 1.5rem;">Livelli Disponibili</h2>
+  <div class="levels-grid">
+    <% @levels.each do |level| %>
+      <div class="level-card">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+          <h3><%= level.title %></h3>
+          <% progress = level.user_progresses.find_by(user: current_user) %>
+          <% if progress&.completed? %>
+            <span style="background: rgba(76, 175, 80, 0.2); color: #4caf50; padding: 0.25rem 0.5rem; border-radius: 999px; font-size: 0.7rem; font-weight: bold;">✓</span>
+          <% end %>
+        </div>
+        <p><%= level.description %></p>
+        <div class="level-type">
+          <span class="type-badge"><%= level.level_type %></span>
+        </div>
+        <%= link_to "Gioca", level_path(level), class: "nav-button" %>
+      </div>
+    <% end %>
+  </div>
 </section>
 
 <section class="final-card">

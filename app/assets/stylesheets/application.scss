@@ -55,8 +55,8 @@ body {
   padding: 0.75rem 1.15rem;
   border-radius: 999px;
   border: 1px solid transparent;
-  background: rgba(255, 255, 255, 0.05);
-  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
   text-decoration: none;
   font-size: 0.95rem;
   cursor: pointer;
@@ -65,12 +65,19 @@ body {
 .nav-button:hover,
 .final-button:hover,
 .hero-pill:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.15);
+  color: #f8fafc;
 }
 
 .nav-button-outline {
   background: transparent;
   border-color: rgba(148, 163, 184, 0.24);
+  color: #cbd5e1;
+}
+
+.nav-button-outline:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #f8fafc;
 }
 
 .nav-form {
@@ -145,6 +152,7 @@ body {
 .hero-pill.active {
   background: rgba(96, 165, 250, 0.22);
   border-color: rgba(96, 165, 250, 0.45);
+  color: #f8fafc;
 }
 
 .hero-status-card {
@@ -273,7 +281,12 @@ body {
 .final-button {
   background: #2563eb;
   border: none;
-  color: white;
+  color: #e2e8f0;
+}
+
+.final-button:hover {
+  background: #3b82f6;
+  color: #f8fafc;
 }
 
 @media (max-width: 900px) {
@@ -297,4 +310,50 @@ body {
   .hero-copy h1 {
     font-size: 2rem;
   }
+}
+
+.levels-section {
+  margin-top: 2rem;
+}
+
+.levels-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.level-card {
+  padding: 1.5rem;
+  border-radius: 1.5rem;
+  background: rgba(15, 23, 42, 0.88);
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.level-card h3 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.level-card p {
+  margin: 0;
+  line-height: 1.6;
+  color: #cbd5e1;
+  flex-grow: 1;
+}
+
+.level-type {
+  margin-top: 0.5rem;
+}
+
+.type-badge {
+  display: inline-flex;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  background: rgba(96, 165, 250, 0.16);
+  color: #93c5fd;
+  text-transform: capitalize;
 }

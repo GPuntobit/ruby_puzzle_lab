@@ -10,13 +10,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_01_145745) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_01_173418) do
   create_table "blocks", force: :cascade do |t|
     t.string "content"
     t.datetime "created_at", null: false
     t.integer "level_id", null: false
     t.datetime "updated_at", null: false
     t.index ["level_id"], name: "index_blocks_on_level_id"
+  end
+
+  create_table "hints", force: :cascade do |t|
+    t.text "content"
+    t.datetime "created_at", null: false
+    t.integer "level_id", null: false
+    t.integer "hint_order"
+    t.datetime "updated_at", null: false
+    t.index ["level_id"], name: "index_hints_on_level_id"
   end
 
   create_table "levels", force: :cascade do |t|
@@ -51,6 +60,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_01_145745) do
   end
 
   add_foreign_key "blocks", "levels"
+  add_foreign_key "hints", "levels"
   add_foreign_key "user_progresses", "levels"
   add_foreign_key "user_progresses", "users"
 end
