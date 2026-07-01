@@ -5,12 +5,12 @@ Rails.application.routes.draw do
 
   root "levels#index"
 
-  resources :levels, only: [:index, :show] do
+  resources :levels, only: [ :index, :show ] do
     member do
       post :check_solution
       get :get_hint
     end
   end
 
-  resources :user_progresses, only: [:index]
+  resources :user_progresses, only: [ :index ]
 end

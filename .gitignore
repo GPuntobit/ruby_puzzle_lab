@@ -36,7 +36,6 @@
 # Ignore local environment and tool files.
 /.env
 /.env.*
-/.ruby-version
 /.idea/
 /.vscode/
 
