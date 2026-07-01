@@ -1,0 +1,18 @@
+<h1>I tuoi progressi</h1>
+
+<% if @user_progresses.any? %>
+  <ul>
+    <% @user_progresses.each do |progress| %>
+      <li>
+        <strong><%= progress.level.title %></strong>
+        <% if progress.completed? %>
+          <span style="color: green;">✓ Completato</span>
+        <% else %>
+          <span style="color: orange;">In corso</span>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p>Non hai ancora completato nessun livello.</p>
+<% end %>

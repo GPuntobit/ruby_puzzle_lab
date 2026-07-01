@@ -1,0 +1,78 @@
+<section class="hero-panel">
+  <div class="hero-copy">
+    <div class="hero-tag">Ruby Quest</div>
+    <h1>Impara Ruby costruendo dungeon</h1>
+    <p>I costrutti Ruby si sbloccano come abilità del golem, non come capitoli di un manuale.</p>
+
+    <div class="hero-buttons">
+      <span class="hero-pill active">Concept</span>
+      <span class="hero-pill">Mappa live</span>
+      <span class="hero-pill">Schemata puzzle</span>
+      <span class="hero-pill">Progressione Ruby</span>
+    </div>
+  </div>
+
+  <div class="hero-status-card">
+    <div class="status-top">
+      <span class="status-level">Lv</span>
+      <span class="status-number">3</span>
+    </div>
+    <div class="status-xp">480 XP</div>
+  </div>
+</section>
+
+<section class="roadmap-grid">
+  <article class="roadmap-card roadmap-card--green">
+    <div class="roadmap-header">Piano 1</div>
+    <h2>Le Fondamenta</h2>
+    <ul>
+      <li class="completed">variabili & tipi</li>
+      <li class="completed">if / else / end</li>
+      <li class="completed">Array, Hash</li>
+      <li class="in-progress">.each, .map</li>
+      <li>metodi</li>
+    </ul>
+  </article>
+
+  <article class="roadmap-card roadmap-card--blue">
+    <div class="roadmap-header">Piano 2</div>
+    <h2>Classi e Oggetti</h2>
+    <ul>
+      <li>class Golem</li>
+      <li>initialize</li>
+      <li>ereditarietà</li>
+      <li>attr_reader</li>
+      <li>moduli</li>
+    </ul>
+  </article>
+
+  <article class="roadmap-card roadmap-card--purple">
+    <div class="roadmap-header">Piano 3</div>
+    <h2>Blocchi e Proc</h2>
+    <ul>
+      <li>blocchi { |x| }</li>
+      <li>Proc e Lambda</li>
+      <li>yield</li>
+      <li>map, select, reduce</li>
+    </ul>
+  </article>
+
+  <article class="roadmap-card roadmap-card--amber">
+    <div class="roadmap-header">Piano 4</div>
+    <h2>Gestione Errori</h2>
+    <ul>
+      <li>begin / rescue</li>
+      <li>raise</li>
+      <li>ensure</li>
+      <li>eccezioni custom</li>
+    </ul>
+  </article>
+</section>
+
+<section class="final-card">
+  <div>
+    <div class="final-label">Piano 5 — Boss finale: il Golem Autonomo</div>
+    <p>Il giocatore scrive un programma Ruby completo che fa sopravvivere il golem a una sequenza di nemici con comportamenti diversi. È il progetto finale del gioco.</p>
+  </div>
+  <%= link_to "Implementa drag-and-drop in Gosu", levels_path, class: "final-button" %>
+</section>

@@ -1,0 +1,101 @@
+<h1><%= @level.title %></h1>
+<p><%= @level.description %></p>
+
+<h2>Blocchi di codice</h2>
+<div id="code-blocks" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;">
+  <% @blocks.each do |block| %>
+    <div class="code-block" draggable="true" style="padding: 8px 12px; background-color: #e0f7fa; border: 1px solid #b2ebf2; border-radius: 4px; cursor: grab;">
+      <%= block.content %>
+    </div>
+  <% end %>
+</div>
+
+<h2>Inserisci la soluzione</h2>
+<label for="answer-input" style="display: block; margin-bottom: 6px; font-weight: bold;">Scrivi la risposta completa</label>
+<textarea id="answer-input" rows="5" placeholder="Es: puts \"Ciao, mondo!\"" style="width: 100%; max-width: 600px; padding: 10px; border: 1px solid #b2ebf2; border-radius: 4px; margin-bottom: 10px;"></textarea>
+
+<h2>Canva</h2>
+<div id="canvas" style="min-height: 100px; border: 2px dashed #b2ebf2; border-radius: 4px; padding: 10px; background-color: #f9f9f9; margin-bottom: 20px;"></div>
+
+<button id="execute" style="padding: 8px 16px; background-color: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer;">Controlla risposta</button>
+<button id="reset" style="padding: 8px 16px; background-color: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">Resetta</button>
+
+<div id="output" style="margin-top: 20px; padding: 10px; background-color: #e8f5e9; border-radius: 4px; font-family: monospace;"></div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const codeBlocks = document.querySelectorAll('.code-block');
+    const canvas = document.getElementById('canvas');
+    const answerInput = document.getElementById('answer-input');
+    const executeButton = document.getElementById('execute');
+    const resetButton = document.getElementById('reset');
+    const outputDiv = document.getElementById('output');
+
+    let draggedItem = null;
+
+    const addBlockToCanvas = (text) => {
+      const newBlock = document.createElement('div');
+      newBlock.textContent = text;
+      newBlock.draggable = true;
+      newBlock.style.cssText = "display: inline-block; padding: 8px 12px; background-color: #e0f7fa; border: 1px solid #b2ebf2; border-radius: 4px; margin: 5px; cursor: grab; user-select: none;";
+      newBlock.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('text/plain', newBlock.textContent);
+        e.dataTransfer.effectAllowed = 'copy';
+      });
+      newBlock.addEventListener('click', () => newBlock.remove());
+      canvas.appendChild(newBlock);
+    };
+
+    codeBlocks.forEach(block => {
+      block.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('text/plain', block.textContent);
+        e.dataTransfer.effectAllowed = 'copy';
+      });
+      block.addEventListener('click', () => addBlockToCanvas(block.textContent));
+    });
+
+    canvas.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+    });
+
+    canvas.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const data = e.dataTransfer.getData('text/plain');
+      if (data) {
+        addBlockToCanvas(data);
+      }
+    });
+
+    const getCanvasContent = () => {
+      return Array.from(canvas.children).map(el => el.textContent).join('\n');
+    };
+
+    executeButton.addEventListener('click', () => {
+      const canvasContent = getCanvasContent();
+      const typedAnswer = answerInput.value.trim();
+      const payload = typedAnswer ? typedAnswer : canvasContent;
+      const levelId = <%= @level.id %>;
+
+      fetch(`/levels/${levelId}/check_solution`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ solution: payload })
+      })
+      .then(response => response.json())
+      .then(data => {
+        outputDiv.textContent = data.message;
+        outputDiv.style.color = data.success ? 'green' : 'red';
+      });
+    });
+
+    resetButton.addEventListener('click', () => {
+      canvas.innerHTML = '';
+      answerInput.value = '';
+      outputDiv.textContent = '';
+    });
+  });
+</script>

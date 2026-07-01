@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "Ruby Quest" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Ruby Quest">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body>
+    <div class="page-shell">
+      <header class="site-header">
+        <div class="brand-group">
+          <div class="brand-logo">Ruby Quest</div>
+          <div class="brand-tag">Impara Ruby costruendo dungeon</div>
+        </div>
+        <div class="nav-actions">
+          <%= link_to "Livelli", levels_path, class: "nav-button" %>
+          <%= link_to "Progressi", user_progresses_path, class: "nav-button" %>
+          <% if user_signed_in? %>
+            <%= button_to "Esci", destroy_user_session_path, method: :delete, form: { class: "nav-form" }, class: "nav-button nav-button-outline" %>
+          <% else %>
+            <%= link_to "Accedi", new_user_session_path, class: "nav-button nav-button-outline" %>
+          <% end %>
+        </div>
+      </header>
+
+      <% if notice %>
+        <div class="flash flash-notice"><%= notice %></div>
+      <% end %>
+      <% if alert %>
+        <div class="flash flash-alert"><%= alert %></div>
+      <% end %>
+
+      <main class="page-content"><%= yield %></main>
+    </div>
+  </body>
+</html>
