@@ -63,7 +63,7 @@ class LevelsController < ApplicationController
   def normalize_code(code)
     code.to_s
         .gsub(/\r\n?/, "\n")
-        .gsub(/\s+/, ' ')
+        .gsub(/\s+/, " ")
         .gsub(/"/, "'")
         .strip
   end
